@@ -1,0 +1,503 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.frmOnTime..Create
+Gui.frmOnTime..Caption("WO On-Time")
+Gui.frmOnTime..Size(15315,10830)
+Gui.frmOnTime..MinX(15045)
+Gui.frmOnTime..MinY(10095)
+Gui.frmOnTime..Position(0,0)
+Gui.frmOnTime..BackColor(-2147483633)
+Gui.frmOnTime..MousePointer(0)
+Gui.frmOnTime..Event(UnLoad,Unload)
+Gui.frmOnTime.picGSSLogo.Create(PictureBox)
+Gui.frmOnTime.picGSSLogo.Size(9250,1540)
+Gui.frmOnTime.picGSSLogo.Position(5310,45)
+Gui.frmOnTime.lblStatus.Create(Label,"Loading Data....",False,1935,255,0,2385,30,True,0,"Arial",8,-2147483633,0)
+Gui.frmOnTime.pbStatus.Create(ProgressBar)
+Gui.frmOnTime.pbStatus.Size(1935,255)
+Gui.frmOnTime.pbStatus.Position(2415,300)
+Gui.frmOnTime.pbStatus.Visible(False)
+Gui.frmOnTime.GsGCOnTime.Create(GsGridControl)
+Gui.frmOnTime.GsGCOnTime.Size(14970,8505)
+Gui.frmOnTime.GsGCOnTime.Position(30,1215)
+Gui.frmOnTime.GsGCOnTime.TabStop(True)
+Gui.frmOnTime.GsGCOnTime.TabIndex(4)
+Gui.frmOnTime.cmdRefresh.Create(Button)
+Gui.frmOnTime.cmdRefresh.Size(975,345)
+Gui.frmOnTime.cmdRefresh.Position(2400,795)
+Gui.frmOnTime.cmdRefresh.Caption("REFRESH")
+Gui.frmOnTime.cmdRefresh.Event(Click,LoadDtOnTime)
+Gui.frmOnTime.cmdRefresh.TabStop(True)
+Gui.frmOnTime.cmdRefresh.TabIndex(3)
+Gui.frmOnTime.dtpBeg.Create(DatePicker)
+Gui.frmOnTime.dtpBeg.Size(1935,285)
+Gui.frmOnTime.dtpBeg.Position(150,225)
+Gui.frmOnTime.dtpEnd.Create(DatePicker)
+Gui.frmOnTime.dtpEnd.Size(1935,285)
+Gui.frmOnTime.dtpEnd.Position(150,825)
+Gui.frmOnTime.lblBegDate.Create(Label,"Beg.Date",True,1935,255,0,120,30,True,0,"Arial",8,-2147483633,0)
+Gui.frmOnTime.lblEndDate.Create(Label,"End Date",True,1935,255,0,120,600,True,0,"Arial",8,-2147483633,0)
+Gui.frmOnTime.txtOnTime.Create(TextBox,"",True,780,345,0,14235,9840,True,2,"Arial",10,-2147483643,1)
+Gui.frmOnTime.txtOnTime.Locked(True)
+Gui.frmOnTime.lblOnTime.Create(Label,"On-Time %",True,1125,255,0,13035,9945,True,0,"Arial",10,-2147483633,0)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+	V.Global.bLoadDate.Declare
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	V.Local.sGSSLogo.Declare
+	V.Local.sIcon.Declare
+	V.Local.sDir.Declare
+	V.Local.bDir.Declare
+
+	F.Intrinsic.String.Build("{0}\GAB\GAS\gss2.ico",V.Caller.PluginsDir,v.Local.sIcon)
+	F.Intrinsic.String.Build("{0}\GAB\GAS\GAB_GSS_Logo_Green_Dash.png",V.Caller.PluginsDir,V.Local.sGssLogo)
+	Gui.frmOnTime.picGSSLogo.Picture(V.Local.sGSSLogo)
+	Gui.frmOnTime..Icon(V.Local.sIcon)
+'	Gui.frmTotalsPL..Icon(V.Local.sIcon)
+
+	F.Intrinsic.Control.CallSub(SetAnchors)
+	F.Intrinsic.Control.CallSub(SetContextMenus)
+
+	Gui.frmOnTime..Show
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+
+	F.Intrinsic.Control.EndTry
+Program.Sub.Main.End
+
+Program.Sub.Unload.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	F.Intrinsic.Control.If(V.Global.bLoadDate)
+		F.Intrinsic.Control.CallSub(Serialize)
+	F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.End
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+
+	F.Intrinsic.Control.EndTry
+Program.Sub.Unload.End
+
+Program.Sub.SetAnchors.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	'0 - None
+	'1 - Top
+	'2 - Bottom
+	'4 - Left
+	'8 - Right
+
+	Gui.frmOnTime.picGssLogo.Anchor(1)
+	Gui.frmOnTime.GsGCOnTime.Anchor(15)
+	Gui.frmOnTime.txtOnTime.Anchor(10)
+	Gui.frmOnTime.lblOnTime.Anchor(10)
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+
+	F.Intrinsic.Control.EndTry
+Program.Sub.SetAnchors.End
+
+Program.Sub.SetContextMenus.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	Gui.frmOnTime..ContextMenuCreate("ctxOnTime")
+	Gui.frmOnTime.GsGCOnTime.ContextMenuAttach("ctxOnTime")
+	Gui.frmOnTime..ContextMenuAddItem("ctxOnTime","Refresh",0,"Refresh")
+	Gui.frmOnTime..ContextMenuAddItem("ctxOnTime","Export",0,"Export")
+	Gui.frmOnTime..ContextMenuAddItem("ctxOnTime","ResetColumns",0,"Reset Columns")
+	Gui.frmOnTime..ContextMenuSetItemEventHandler("ctxOnTime","Refresh","LoadDtOnTime")
+	Gui.frmOnTime..ContextMenuSetItemEventHandler("ctxOnTime","Export","MenuClickExport")
+	Gui.frmOnTime..ContextMenuSetItemEventHandler("ctxOnTime","ResetColumns","MenuClickResetColumns")
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+
+	F.Intrinsic.Control.EndTry
+Program.Sub.SetContextMenus.End
+
+Program.Sub.MenuClickExport.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	V.Local.sFileExport.Declare
+	V.Local.bExcel.Declare
+	V.Local.bFileLocked.Declare
+	V.Local.sMsg.Declare
+	V.Local.sControl.Declare
+
+		F.Automation.MSExcel.CheckPresence(V.Local.bExcel)
+		F.Intrinsic.Control.If(V.Local.bExcel)
+			F.Intrinsic.String.Build("{0}\GAB_WO_OnTime_{1}_Export.xlsx",V.Caller.LocalGssTempDir,V.Local.sControl,V.Local.sFileExport)
+			F.Intrinsic.File.IsFileLocked(V.Local.sFileExport,V.Local.bFileLocked)
+			F.Intrinsic.Control.If(V.Local.bFileLocked)
+				F.Intrinsic.String.Build("File is already open. Please close and export again.{0}File: {1}",V.Ambient.NewLine,V.Local.sFileExport,V.Local.sMsg)
+				F.Intrinsic.UI.Msgbox(V.Local.sMsg,"File In Use")
+			F.Intrinsic.Control.Else
+				Gui.frmOnTime.GsGCOnTime.Export(V.Local.sFileExport,"xlsx")
+				F.Intrinsic.Task.ShellExec(0,"",V.Local.sFileExport,"","",1)
+			F.Intrinsic.Control.EndIf
+		F.Intrinsic.Control.Else
+			F.Intrinsic.String.Build("{0}\GAB_WO_Ontime_{1}_Export.csv",V.Caller.LocalGssTempDir,V.Local.sControl,V.Local.sFileExport)
+			F.Intrinsic.File.IsFileLocked(V.Local.sFileExport,V.Local.bFileLocked)
+			F.Intrinsic.Control.If(V.Local.bFileLocked)
+				F.Intrinsic.String.Build("File is already open. Please close and export again.{0}File: {1}",V.Ambient.NewLine,V.Local.sFileExport,V.Local.sMsg)
+				F.Intrinsic.UI.Msgbox(V.Local.sMsg,"File In Use")
+			F.Intrinsic.Control.Else
+				Gui.frmOnTime.GsGCOnTime.Export(V.Local.sFileExport,"csv")
+			F.Intrinsic.Control.EndIf
+			F.Intrinsic.Task.ShellExec(0,"",V.Local.sFileExport,"","",1)
+		F.Intrinsic.Control.EndIf
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End 
+	F.Intrinsic.Control.EndTry
+Program.Sub.MenuClickExport.End
+
+Program.Sub.MenuClickResetColumns.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	V.Local.bSerialize.Declare
+
+	F.Intrinsic.Control.SelectCase(V.Args.MenuName)
+		F.Intrinsic.Control.Case("ctxOnTime")
+			V.Global.bLoadDate.Set(False)
+			F.Global.Registry.AddValue(V.Caller.User,V.Caller.CompanyCode,"gvOnTime",4631,1000,False,"Serialize",False,0,-999.0,1/1/1980,12:00:00 AM,"")
+			F.Intrinsic.Control.CallSub(LoadDtOnTime)
+	F.Intrinsic.Control.EndSelect
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+
+	F.Intrinsic.Control.EndTry
+Program.Sub.MenuClickResetColumns.End
+
+Program.Sub.LoadDtOnTime.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	V.Local.sSQL.Declare
+	V.Local.dBegDate.Declare
+	V.Local.dEndDate.Declare
+	V.Local.sPart.Declare
+	V.Local.sActiveFilterString.Declare
+	V.Local.sFilter.Declare
+	V.Local.iRet.Declare
+	V.Local.fPercent.Declare
+	V.Local.iPercent.Declare
+	V.Local.bExist.Declare
+
+	Gui.frmOnTime.lblStatus.Visible(True)
+	Gui.frmOnTime.pbStatus.Visible(True)
+	Gui.frmOnTime.pbStatus.Min(0)
+	Gui.frmOnTime.pbStatus.Max(100)
+
+	F.ODBC.Connection!con.OpenCompanyConnection(300)
+	
+	'Check if table exists
+	F.ODBC.Connection!con.TableExists("GAB_CONSENT_DUE_DATE",V.Local.bExist)
+	F.Intrinsic.Control.If(V.Local.bExist,=,False)
+		F.ODBC.Connection!con.Execute("CREATE TABLE GAB_CONSENT_DUE_DATE(WO CHAR(6), SUFFIX CHAR(3), DUE_DATE DATE);")
+	F.Intrinsic.Control.EndIf
+
+	F.Intrinsic.Control.If(V.Global.bLoadDate)
+		F.Intrinsic.Control.CallSub(Serialize)
+	F.Intrinsic.Control.EndIf
+	V.Global.bLoadDate.Set(True)
+
+	F.Intrinsic.Control.If(V.DataTable.dtOnTime.Exists)
+		F.Data.DataTable.Close("dtOnTime")
+	F.Intrinsic.Control.EndIf
+
+	V.Local.dBegDate.Set(V.Screen.frmOnTime!dtpBeg.Value)
+	V.Local.dEndDate.Set(V.Screen.frmOnTime!dtpEnd.Value)		
+
+	'Find Employee Data
+	F.Data.Dictionary.CreateFromSQL("dicCustName","con","select rtrim(customer) as customer, customerlong as customerlong from gab_customer_long")
+	F.Data.Dictionary.SetDefaultReturn("dicCustName","")
+
+	F.Intrinsic.String.Build("SELECT JH.JOB, JH.SUFFIX, RTRIM(CUSTOMER) AS CUSTOMER, '' AS CUSTOMERNAME, PART, DESCRIPTION,COMMENTS_1+' '+COMMENTS_2 AS COMMENT, QTY_ORDER, DATE_OPENED, DATE_CLOSED, JH.DATE_DUE AS DUEDATE, GAB.DUE_DATE AS GAB_DUEDATE, IF(DATE_CLOSED > (IF(GAB.DUE_DATE IS NULL, JH.DATE_DUE, GAB.DUE_DATE)),'N','Y') AS ONTIME FROM V_JOB_HEADER JH LEFT JOIN GAB_CONSENT_DUE_DATE GAB ON RTRIM(JH.JOB) = RTRIM(GAB.WO) AND (COALESCE(JH.SUFFIX,'') = COALESCE(GAB.SUFFIX,'')) WHERE PARENT_WO = '' AND DATE_CLOSED BETWEEN '{0}' AND '{1}';",V.Local.dBegDate.PervasiveDate,V.Local.dEndDate.PervasiveDate,V.Local.sSQL)
+	F.Data.DataTable.CreateFromSQL("dtOnTime","con",V.Local.sSQL,True)
+	F.Data.DataTable.FillFromDictionary("dtOnTime","dicCustName","Customer","CustomerName")
+
+	F.Intrinsic.Control.If(V.DataTable.dtOnTime.Rowcount,=,0)
+		F.Intrinsic.UI.Msgbox("Record Not Found, Please Try Again","WO On-Time Delivery")
+		F.Data.Dictionary.Close("dicCustName")
+		F.ODBC.Connection!con.Close
+		F.Intrinsic.Control.End
+
+	F.Intrinsic.Control.EndIf
+
+'	F.Intrinsic.Control.For(V.Local.iCnt,0,V.DataTable.dtPR.RowCount--,1)
+'		Gui.frmPerf.pbStatus.Value(V.Local.iCnt)
+	F.Data.DataTable.Compute("dtOnTime","COUNT(ONTIME)","ONTIME = 'Y'",V.Local.iRet)
+	F.Intrinsic.Math.Div(V.Local.iRet,V.DataTable.dtOnTime.RowCount,V.Local.fPercent)
+	F.Intrinsic.Math.Mult(V.Local.fPercent,100,V.Local.iPercent)
+	Gui.frmOnTime.txtOnTime.Text(V.Local.iPercent)
+
+	Gui.frmOnTime.pbStatus.Value(15)
+
+	F.Data.Dictionary.Close("dicCustName")
+	F.ODBC.Connection!con.Close
+
+	Gui.frmOnTime.pbStatus.Value(90)
+	F.Intrinsic.Control.CallSub(LoadgvOnTime)
+	F.Intrinsic.Control.CallSub(Deserialize)
+	Gui.frmOnTime.pbStatus.Value(100)
+	Gui.frmOnTime.lblStatus.Visible(False)
+	Gui.frmOnTime.pbStatus.Visible(False)
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+
+	F.Intrinsic.Control.EndTry
+Program.Sub.LoadDtOnTime.End
+
+Program.Sub.LoadgvOnTime.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	Gui.frmOnTime.GsGCOnTime.AddGridviewFromDatatable("gvOnTime","dtOnTime")
+	Gui.frmOnTime.GsGCOnTime.SuspendLayout()
+	Gui.frmOnTime.GsGCOnTime.SetGridViewProperty("gvOnTime","MultiSelect",True)
+	Gui.frmOnTime.GsGCOnTime.SetGridViewProperty("gvOnTime","AllowSort",True)
+	Gui.frmOnTime.GsGCOnTime.SetGridViewProperty("gvOnTime","AllowFilter",True)
+	Gui.frmOnTime.GsGCOnTime.SetGridViewProperty("gvOnTime","ShowGroupPanel",True)
+'	Gui.frmOnTime.GsGCOnTime.SetGridViewProperty("gvOnTime","EnableAppearanceOddRow",True)
+	Gui.frmOnTime.GsGCOnTime.SetGridViewProperty("gvOnTime","OptionsViewColumnAutoWidth",False)
+
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","JOB","VisibleIndex","0")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","SUFFIX","VisibleIndex","1")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","CUSTOMER","VisibleIndex","2")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","CUSTOMERNAME","VisibleIndex","3")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","PART","VisibleIndex","4")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","DESCRIPTION","VisibleIndex","5")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","COMMENT","VisibleIndex","6")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","QTY_ORDER","VisibleIndex","7")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","DATE_OPENED","VisibleIndex","8")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","DATE_CLOSED","VisibleIndex","9")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","DUEDATE","VisibleIndex","10")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","GAB_DUEDATE","VisibleIndex","11")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","ONTIME","VisibleIndex","12")
+
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Job","Caption","WO")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Suffix","Caption","Suffix")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Customer","Caption","Customer")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","CustomerName","Caption","Customer Name")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Part","Caption","Part")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Description","Caption","Description")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Comment","Caption","Comment")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Qty_Order","Caption","WO Qty")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Opened","Caption","WO Date")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Closed","Caption","Closed Date")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","DueDate","Caption","Due Date")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","GAB_DueDate","Caption","Consent Due Date")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Ontime","Caption","On-Time")
+
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Job","AllowEdit",False)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Suffix","AllowEdit",False)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Customer","AllowEdit",False)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","CustomerName","AllowEdit",False)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Part","AllowEdit",False)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Description","AllowEdit",False)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Comment","AllowEdit",False)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Qty_Order","AllowEdit",False)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Opened","AllowEdit",False)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Closed","AllowEdit",False)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","DueDate","AllowEdit",False)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","GAB_DueDate","AllowEdit",False)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Ontime","AllowEdit",False)
+
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Job","ReadOnly",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Suffix","ReadOnly",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Customer","ReadOnly",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","CustomerName","ReadOnly",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Part","ReadOnly",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Description","ReadOnly",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Comment","ReadOnly",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Qty_Order","ReadOnly",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Opened","ReadOnly",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Closed","ReadOnly",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","DueDate","ReadOnly",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","GAB_DueDate","ReadOnly",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Ontime","ReadOnly",True)
+
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Job","MinWidth","75")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Suffix","MinWidth","50")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Customer","MinWidth","50")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","CustomerName","MinWidth","200")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Part","MinWidth","150")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Description","MinWidth","200")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Comment","MinWidth","250")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Qty_Order","MinWidth","100")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Opened","MinWidth","100")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Closed","MinWidth","100")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","DueDate","MinWidth","100")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","GAB_DueDate","MinWidth","100")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Ontime","MinWidth","100")
+
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Job","HeaderFontBold",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Suffix","HeaderFontBold",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Customer","HeaderFontBold",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","CustomerName","HeaderFontBold",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Part","HeaderFontBold",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Description","HeaderFontBold",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Comment","HeaderFontBold",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Qty_Order","HeaderFontBold",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Opened","HeaderFontBold",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Closed","HeaderFontBold",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","DueDate","HeaderFontBold",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","GAB_DueDate","HeaderFontBold",True)
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Ontime","HeaderFontBold",True)
+
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Job","HeaderHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Suffix","HeaderHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Customer","HeaderHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","CustomerName","HeaderHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Part","HeaderHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Description","HeaderHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Comment","HeaderHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Qty_Order","HeaderHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Opened","HeaderHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Closed","HeaderHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","DueDate","HeaderHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","GAB_DueDate","HeaderHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Ontime","HeaderHAlignment","Center")
+
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Job","CellHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Suffix","CellHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Opened","CellHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Closed","CellHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","DueDate","CellHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","GAB_DueDate","CellHAlignment","Center")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","OnTime","CellHAlignment","Center")
+
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Opened","DisplayCustomDatetime","d")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Date_Closed","DisplayCustomDatetime","d")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","DueDate","DisplayCustomDatetime","d")
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","GAB_DueDate","DisplayCustomDatetime","d")
+
+	Gui.frmOnTime.GsGCOnTime.SetColumnProperty("gvOnTime","Qty_Order","DisplayCustomNumeric","#,###,##0.00####")
+
+	F.Intrinsic.Control.CallSub(Highlight)
+
+	Gui.frmOnTime.GsGCOnTime.ResumeLayout()
+	Gui.frmOnTime.GsGCOnTime.MainView("gvOnTime")
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+
+	F.Intrinsic.Control.EndTry
+Program.Sub.LoadgvOnTime.End
+
+Program.Sub.Highlight.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	V.Local.iCnt.Declare
+	V.Local.fMons.Declare
+	V.Local.dDateInit.Declare
+	V.Local.dDatePres.Declare
+	V.Local.iDeter.Declare
+	V.Local.sType.Declare
+	V.Local.bAgeCash.Declare
+	V.Local.bAgeCash2.Declare
+	V.Local.Status.Declare
+
+	Gui.frmOnTime.lblStatus.Caption("Ontime Status....")
+'	Gui.frmOnTime.pbStatus.Min(0)
+	F.Intrinsic.Control.If(V.DataTable.dtOnTime.RowCount,=,0)
+'		Gui.frmOnTime.pbStatus.Max(100)
+'		Gui.frmOnTime.pbStatus.Value(90)
+	F.Intrinsic.Control.Else
+'		Gui.frmOnTime.pbStatus.Max(V.DataTable.dtOnTime.RowCount)
+	F.Intrinsic.Control.EndIf
+
+	F.Intrinsic.Control.For(V.Local.iCnt,0,V.DataTable.dtOnTime.RowCount--,1)
+'		Gui.frmOnTime.pbStatus.Value(V.Local.iCnt)
+		Gui.frmOnTime.GsGCOnTime.GetCellValueByColumnName("gvOnTime","ONTIME",V.Local.iCnt,V.Local.Status)
+		F.Intrinsic.Control.SelectCase(V.Local.Status.Trim)
+			F.Intrinsic.Control.CaseAny("N")
+				Gui.frmOnTime.GsGCOnTime.SetRowAppearance("gvOnTime",V.Local.iCnt,"BackColor","LightPink")
+			F.Intrinsic.Control.CaseAny("Y")
+				Gui.frmOnTime.GsGCOnTime.SetRowAppearance("gvOnTime",V.Local.iCnt,"BackColor","White")
+		F.Intrinsic.Control.EndSelect	
+	F.Intrinsic.Control.Next(V.Local.iCnt)
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End 
+	F.Intrinsic.Control.EndTry
+Program.Sub.Highlight.End
+
+Program.Sub.Serialize.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	V.Local.sSerialize.Declare
+
+	'gvOnTime
+	Gui.frmOnTime.GsGCOnTime.Serialize("gvOnTime",V.Local.sSerialize)
+	F.Global.Registry.AddValue(V.Caller.User,V.Caller.CompanyCode,"gvOnTime",4631,1000,False,"Serialize",False,0,-999.0,1/1/1980,12:00:00 AM,V.Local.sSerialize)
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+
+	F.Intrinsic.Control.EndTry
+Program.Sub.Serialize.End
+
+Program.Sub.Deserialize.Start
+	F.Intrinsic.Control.Try
+	V.Local.sError.Declare
+
+	V.Local.sSerialize.Declare
+
+	'gvOnTime
+	F.Global.Registry.ReadValue(V.Caller.User,V.Caller.CompanyCode,"gvOnTime",4631,1000,6,"",V.Local.sSerialize)
+	F.Intrinsic.Control.If(V.Local.sSerialize.Trim,<>,"")
+		Gui.frmOnTime.GsGCOnTime.Deserialize(V.Local.sSerialize)
+	F.Intrinsic.Control.EndIf
+
+	F.Intrinsic.Control.Catch
+		F.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",V.Ambient.ScriptPath,V.Ambient.Newline,V.Ambient.CurrentSubroutine,V.Ambient.ErrorNumber,V.Ambient.ErrorDescription,V.Ambient.GABVersion,V.Local.sError)
+		F.Intrinsic.UI.Msgbox(V.Local.sError)
+		F.Intrinsic.Control.End
+
+	F.Intrinsic.Control.EndTry
+Program.Sub.Deserialize.End
+
+Program.Sub.Comments.Start
+${$0$}$GAB WO ON TIME DELIVERY$}$DYUNUS$}$7/30/2019 3:17:52 PM$}$False
+${$5$}$2.0.0.0$}$2
+${$6$}$dyunus$}$20221010153603489$}$xZ6SHi8g7O0Qsxe6AiO2NH3PnOKQRy0T/oP5kBousJSiw/XlIEm5cImD67BUBvz5v4APX/oO/vE=
+Program.Sub.Comments.End
