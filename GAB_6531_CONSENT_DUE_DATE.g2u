@@ -1,0 +1,114 @@
+﻿Program.Sub.ScreenSU.Start
+Gui.F_DueDate..Create
+Gui.F_DueDate..Caption("Consent WO Due Date")
+Gui.F_DueDate..Size(4065,1335)
+Gui.F_DueDate..MinX(0)
+Gui.F_DueDate..MinY(0)
+Gui.F_DueDate..Position(0,0)
+Gui.F_DueDate..BackColor(-2147483633)
+Gui.F_DueDate..MousePointer(0)
+Gui.F_DueDate..Sizeable(False)
+Gui.F_DueDate..Event(UnLoad,F_DueDate_Unload)
+Gui.F_DueDate.cmdSave.Create(Button)
+Gui.F_DueDate.cmdSave.Size(1290,465)
+Gui.F_DueDate.cmdSave.Position(2010,135)
+Gui.F_DueDate.cmdSave.Caption("Save")
+Gui.F_DueDate.cmdSave.Event(Click,Update)
+Gui.F_DueDate.dtpDueDate.Create(DatePicker)
+Gui.F_DueDate.dtpDueDate.Size(1530,285)
+Gui.F_DueDate.dtpDueDate.Position(120,225)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+V.Local.bGroup.Declare
+
+'Populate
+
+F.Intrinsic.Control.If(V.Caller.Hook,=,"16630")
+	V.Passed.000093.Set("Con. Due Date")
+	F.Global.Security.IsInGroup(v.Caller.User,"EDITWO",V.Caller.CompanyCode,V.Local.bGroup)
+	
+	f.Intrinsic.Control.If(v.Local.bGroup,=,False)
+'	f.Intrinsic.Control.If(v.Local.bGroup.Not)
+
+
+		F.Intrinsic.UI.ChangeCallerProperty(V.Passed.000093,"LOCK",1)
+	f.Intrinsic.Control.EndIf
+F.Intrinsic.Control.End
+
+F.Intrinsic.Control.ElseIf(V.Caller.Hook,=,"16690")
+	F.Intrinsic.Control.CallSub(Recordload)
+	Gui.F_DueDate..Show
+'F.Intrinsic.Control.End
+
+F.Intrinsic.Control.EndIf
+Program.Sub.Main.End
+
+Program.Sub.RecordLoad.Start
+V.Local.bExist.Declare
+V.Local.sWO.Declare
+V.Local.sSuffix.Declare
+V.Local.sSQL.Declare
+f.ODBC.Connection!conx.opencompanyconnection
+'f.ODBC.connection!conCommon.OpenCommonConnection
+'F.odbc.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+V.Local.sWO.Set(V.Passed.000003)
+V.Local.sSuffix.Set(V.Passed.000004)
+'Check if table exists
+F.ODBC.Connection!conx.TableExists("GAB_CONSENT_DUE_DATE",V.Local.bExist)
+F.Intrinsic.Control.If(V.Local.bExist,=,False)
+	F.ODBC.Connection!conx.Execute("CREATE TABLE GAB_CONSENT_DUE_DATE(WO CHAR(6), SUFFIX CHAR(3), DUE_DATE DATE);")
+F.Intrinsic.Control.EndIf
+F.Intrinsic.String.Concat("SELECT DUE_DATE FROM GAB_CONSENT_DUE_DATE WHERE WO='",V.Local.sWO.Trim,"' and Suffix='",V.Local.sSuffix.Trim,"'",V.Local.sSql)
+F.ODBC.connection!conx.OpenRecordsetRO("rstWO",V.Local.sSql)
+F.Intrinsic.Control.If(V.ODBC.conx!rstWO.EOF,=,False)
+	Gui.F_DueDate.dtpDueDate.Value(V.ODBC.conx!rstWO.FieldValPervasiveDate!DUE_DATE)
+	Gui.F_DueDate.cmdSave.Enabled(False)
+F.Intrinsic.Control.EndIf
+F.ODBC.conx!rstWO.Close
+F.ODBC.Connection!conx.Close
+Program.Sub.RecordLoad.End
+
+Program.Sub.Update.Start
+V.Local.bExist.Declare
+V.Local.sWO.Declare
+V.Local.sSuffix.Declare
+V.Local.dDueDate.Declare
+V.Local.sSql.Declare
+F.odbc.Connection!conx.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+'Check if table exists
+F.ODBC.Connection!conx.TableExists("GAB_CONSENT_DUE_DATE",V.Local.bExist)
+F.Intrinsic.Control.If(V.Local.bExist,=,False)
+	F.ODBC.Connection!conx.Execute("CREATE TABLE GAB_CONSENT_DUE_DATE(WO CHAR(6), SUFFIX CHAR(3), DUE_DATE DATE);")
+F.Intrinsic.Control.EndIf
+V.Local.sWO.Set(V.Passed.000003)
+V.Local.sSuffix.Set(V.Passed.000004)
+V.Local.dDueDate.Set(V.Screen.F_DueDate!dtpDueDate.Value)
+'V.Local.sSql.Set("SELECT WO, SUFFIX, DUE_DATE FROM GAB_CONSENT_DUE_DATE")
+'F.Intrinsic.String.Concat(V.Local.sSql," WHERE WO='",V.Local.sWO.Trim,"' AND SUFFIX='",V.Local.sSUFFIX.Trim,"'",V.Local.sSql)
+f.Intrinsic.String.Build ("SELECT WO, SUFFIX, DUE_DATE FROM GAB_CONSENT_DUE_DATE WHERE WO='{0}' and suffix = '{1}'",v.Local.sWO.Trim,v.Local.sSuffix.Trim,v.Local.sSql)
+F.ODBC.connection!conx.OpenRecordsetRW("rstWO",V.Local.sSql)
+F.Intrinsic.Control.If(V.ODBC.conx!rstWO.EOF,=,True)
+	F.ODBC.conx!rstWO.AddNew
+F.Intrinsic.Control.EndIf
+F.ODBC.conx!rstWO.Set!WO(V.Local.sWO.Trim)
+F.ODBC.conx!rstWO.Set!SUFFIX(V.Local.sSuffix.Trim)
+F.ODBC.conx!rstWO.Set!DUE_DATE(V.Local.dDueDate.PervasiveDate)
+F.ODBC.conx!rstWO.Update
+F.ODBC.conx!rstWO.Close
+F.ODBC.Connection!conx.Close
+F.Intrinsic.UI.Msgbox("Due Date Has Updated","Consent Due Date")
+Program.Sub.Update.End
+
+Program.Sub.F_DueDate_Unload.Start
+F.Intrinsic.Control.End
+
+Program.Sub.F_DueDate_Unload.End
+
+Program.Sub.Comments.Start
+${$0$}$CONSENT DUE DATE$}$DYUNUS$}$7/30/2019 1:14:23 PM$}$False
+${$3$}$0$}$$}$0$}$-1$}$$}$12:00:00 AM$}$ADDITIONAL WO DUE DATE
+Program.Sub.Comments.End
